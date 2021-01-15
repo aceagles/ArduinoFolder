@@ -69,6 +69,15 @@ void loop() {
       // file found at server
       if (httpCode == HTTP_CODE_OK) {
         String payload = http.getString();
+        char *nums = strtok (payload, " ");
+        int serverNums[];
+        i = 0;
+        while (nums != NULL){
+          serverNums = toInt(nums);
+          i++;
+          nums = strtok(NULL, " ");
+        }
+        Serial.println(serverNums[0], serverNums[1]); 
         Serial.println("received payload!!:\n<<");
         Serial.println(payload);
         Serial.println(">>");
