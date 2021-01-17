@@ -23,6 +23,23 @@
 #define STAPSK  "DAwey3yu6bpM"
 #endif
 
+String getValue(String data, char separator, int index)
+{
+  int found = 0;
+  int strIndex[] = {0, -1};
+  int maxIndex = data.length()-1;
+
+  for(int i=0; i<=maxIndex && found<=index; i++){
+    if(data.charAt(i)==separator || i==maxIndex){
+        found++;
+        strIndex[0] = strIndex[1]+1;
+        strIndex[1] = (i == maxIndex) ? i+1 : i;
+    }
+  }
+
+  return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
 void setup() {
 
   Serial.begin(115200);
@@ -69,17 +86,13 @@ void loop() {
       // file found at server
       if (httpCode == HTTP_CODE_OK) {
         String payload = http.getString();
-        char *nums = strtok (payload, " ");
-        int serverNums[];
-        i = 0;
-        while (nums != NULL){
-          serverNums = toInt(nums);
-          i++;
-          nums = strtok(NULL, " ");
-        }
-        Serial.println(serverNums[0], serverNums[1]); 
+        int isOn = getValue(payload, ' ', 0).toInt();
+        int toggle = getValue(payload, ' ', 1).toInt();
+        
         Serial.println("received payload!!:\n<<");
         Serial.println(payload);
+        Serial.println(isOn);
+        Serial.println(toggle);
         Serial.println(">>");
       }
     } else {
