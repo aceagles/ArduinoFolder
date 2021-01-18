@@ -73,7 +73,8 @@ void loop() {
 
 void handleLED(){
   Serial.println("handleLED");
-  //toggleLed();
+  
+  toggleLed();
   PressButton();
   server.sendHeader("Location", "/");
   server.send(303);

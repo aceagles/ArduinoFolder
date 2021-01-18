@@ -1,85 +1,60 @@
+#include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
-#include <WiFi.h>
 #include<Servo.h>
 
-const char* ssid     = "4GEE_Router_7440_2.4GHz";
-const char* password = "DAwey3yu6bpM";
+#ifndef STASSID
+#define STASSID "4GEE_Router_7440_2.4GHz"
+#define STAPSK  "DAwey3yu6bpM"
+#endif
+
 Servo myservo;
 int threshold = 60;
-
-const char* serverName = "http://pentrefarm.ga/ArduinoInteract.php";
-int led = 5;
+int isOn;
+int led = 4;
 boolean ledison = false;
 
-void handleLED();
-void handleRoot();
+
+String getValue(String data, char separator, int index)
+{
+  int found = 0;
+  int strIndex[] = {0, -1};
+  int maxIndex = data.length()-1;
+
+  for(int i=0; i<=maxIndex && found<=index; i++){
+    if(data.charAt(i)==separator || i==maxIndex){
+        found++;
+        strIndex[0] = strIndex[1]+1;
+        strIndex[1] = (i == maxIndex) ? i+1 : i;
+    }
+  }
+
+  return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
 
 void setup() {
-    myservo.attach(5);
-  // Initialize the output variables as outputs
-
+  myservo.attach(5);
   myservo.write(90);
+  Serial.begin(115200);
 
-  // put your setup code here, to run once:
-  pinMode(led, OUTPUT);
-  digitalWrite(led, LOW);
+  Serial.println();
+  Serial.println();
+  Serial.println();
 
-    Serial.begin(115200);         // Start the Serial communication to send messages to the computer
-  delay(10);
-  Serial.println('\n');
+  WiFi.begin(STASSID, STAPSK);
 
-
-  //wifiMulti.addAP("BTHub4-QXJX", "ac4d8b348c");   // add Wi-Fi networks you want to connect to
-
-
-  Serial.println("Connecting ...");
-  int i = 0;
-WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  Serial.println('\n');
-  Serial.print("Connected to ");
-  Serial.println(WiFi.SSID());              // Tell us what network we're connected to
-  Serial.print("IP address:\t");
-  Serial.println(WiFi.localIP());           // Send the IP address of the ESP8266 to the computer
-
-
-
+  Serial.println("");
+  Serial.print("Connected! IP address: ");
+  Serial.println(WiFi.localIP());
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-      HttpClient http();
-      
-      // Your Domain name with URL path or IP address with path
-      http.begin(serverName);
+  // wait for WiFi connection
 
-      // Specify content-type header
-      http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-      // Data to send with HTTP POST
-      String httpRequestData = "method=get";           
-      // Send HTTP POST request
-      int httpResponseCode = http.POST(httpRequestData);
-      
-
-     
-      Serial.print("HTTP Response code: ");
-      Serial.println(httpResponseCode);
-      String rslt = http.getString();
-      Serial.println(rslt);
-        
-      // Free resources
-      http.end();
-}
-
-void handleLED(){
-  Serial.println("handleLED");
-  //toggleLed();
-  PressButton();
-  server.sendHeader("Location", "/");
-  server.send(303);
-  
+  activateHeating();
+  delay(20000);
 }

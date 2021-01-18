@@ -64,19 +64,19 @@ void loop() {
   // wait for WiFi connection
   if ((WiFi.status() == WL_CONNECTED)) {
 
-    //WiFiClient client;
+    
     HTTPClient http;
 
     Serial.print("[HTTP] begin...\n");
     // configure traged server and url
     http.begin("http://18.135.107.252/ArduinoInteract.php"); //HTTP
-    //http.addHeader("Content-Type", "text/plain");
+    
      http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     Serial.print("[HTTP] POST...\n");
     // start connection and send HTTP header and body
     String httpData = "password=tedphww&method=get";
     int httpCode = http.POST(httpData);
-    //int httpCode = 200;
+
     
     // httpCode will be negative on error
     if (httpCode > 0) {
