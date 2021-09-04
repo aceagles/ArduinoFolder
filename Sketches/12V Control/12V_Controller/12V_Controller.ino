@@ -125,7 +125,7 @@ void stateMachine() {
         state = split;
       break;
     case split:
-    Serial.println(analogRead(A0));
+      Serial.println(analogRead(A0));
       if (analogRead(A0) > 897) {
         digitalWrite(relay, LOW);
       } else {
