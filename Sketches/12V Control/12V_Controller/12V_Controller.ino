@@ -32,6 +32,7 @@ bool btnLatch = false, intOnBool = false, displayOn = true;
 volatile int button;
 unsigned long startMillis, activeMillis, but1Millis;
 states state = main, lastState = continuous, LPState = continuous;
+int loadDiff = 0;
 
 Bounce btn1 = Bounce();
 Bounce btn2 = Bounce();
@@ -39,7 +40,7 @@ Bounce btn2 = Bounce();
 
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   pinMode(relay, OUTPUT);
   digitalWrite(relay, HIGH);
   pinMode(3, INPUT_PULLUP);
@@ -125,11 +126,33 @@ void stateMachine() {
         state = split;
       break;
     case split:
+      
       Serial.println(analogRead(A0));
-      if (analogRead(A0) > 897) {
+      int preloadV;
+      bool isOn;
+      if (digitalRead(relay) == HIGH){
+        // Get the pre load voltage
+        preloadV = analogRead(A0);
+        isOn = false;
+      } else {
+        isOn = true;
+      }
+      Serial.println(isOn);
+      if ((analogRead(A0)+ loadDiff) > 897) {
         digitalWrite(relay, LOW);
+        // If turning on from off then calculate the loadDiff
+        if (!isOn) {
+          // Wait 1s for the new voltage to settle
+          delay (1000);
+          // Calculate the voltage drop due to the load
+          loadDiff =  preloadV - analogRead(A0);
+          Serial.println("Difference: ");
+          Serial.println(loadDiff);
+        }
       } else {
         digitalWrite(relay, HIGH);
+        // reset the loadDiff
+        loadDiff = 0;
       }
       displayOn = false;
       LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
